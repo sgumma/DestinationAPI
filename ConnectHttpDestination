@@ -1,0 +1,50 @@
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
+import com.sap.security.core.server.destinations.api.Destination;
+import com.sap.security.core.server.destinations.api.DestinationService;
+import com.sap.security.core.server.destinations.api.HTTPDestination;
+import com.sap.aii.mapping.api.AbstractTransformation;
+import com.sap.aii.mapping.api.StreamTransformationException;
+import com.sap.aii.mapping.api.TransformationInput;
+import com.sap.aii.mapping.api.TransformationOutput;
+
+public class ConnectHttpDestination extends AbstractTransformation {
+
+	public void transform(TransformationInput tip, TransformationOutput top)
+	throws StreamTransformationException {
+   String url;
+  
+try {
+	Context ctx = new InitialContext();
+	DestinationService dstService = (DestinationService) ctx
+			.lookup(DestinationService.JNDI_KEY);
+
+	if (dstService == null)
+		throw new NamingException("Destination Service not available");
+	// getTrace().addInfo("Destination Service not available");
+	Destination destination;
+
+           //  Http Destination
+	destination = dstService.getDestination("HTTP", "HTTP_DESTINATION");
+
+	// for HTTP destination: cast
+	HTTPDestination httpDestination = (HTTPDestination) destination;
+	// obtain a HTTPUrlConnection from the destinationHttpURLConnection
+	httpDestination.getUrl();
+	
+	httpDestination.getURLConnection().connect();
+	url = httpDestination.getUrl().toString();
+	getTrace().addInfo("URL IS :" + url);		
+	int response = httpDestination.getURLConnection().getResponseCode();
+	getTrace().addInfo("Response Code :"+response);
+	
+	
+}
+catch (Exception e) {
+          getTrace().addInfo("Failed to execute HttpDestination");
+   }
+
+}
+}
